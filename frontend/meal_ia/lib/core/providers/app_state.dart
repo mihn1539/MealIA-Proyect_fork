@@ -19,6 +19,7 @@ class AppState extends ChangeNotifier {
   );
 
   // Datos de Usuario
+  String? email; // Added email field
   String? firstName;
   String? lastName;
   DateTime? birthdate;
@@ -43,7 +44,9 @@ class AppState extends ChangeNotifier {
     // forzamos al usuario a loguearse de nuevo para reparar la sesión.
     final firebaseUser = FirebaseAuth.instance.currentUser;
 
-    if (token == null || firebaseUser == null) {
+    // Verificación Relajada: Si hay token (Backend), dejamos pasar.
+    // Si falta Firebase, intentaremos reconectar después.
+    if (token == null) {
       return false;
     }
     return await _loadUserData(token);
@@ -79,6 +82,7 @@ class AppState extends ChangeNotifier {
 
       final userData = jsonDecode(utf8.decode(userResponse.bodyBytes));
 
+      email = userData['email']; // Capture email
       firstName = userData['first_name'];
       lastName = userData['last_name'];
       height = userData['height'];
@@ -129,7 +133,6 @@ class AppState extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['access_token'];
-        await _storage.write(key: 'auth_token', value: token);
 
         // 2. LOGIN / CREACIÓN EN FIREBASE (Sincronización)
         try {
@@ -137,25 +140,17 @@ class AppState extends ChangeNotifier {
             email: email,
             password: password,
           );
-          // print("Firebase: Login sincronizado correctamente.");
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'user-not-found') {
-            // print("Firebase: Usuario no encontrado. Creándolo para sincronizar...");
-            try {
-              await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                email: email,
-                password: password,
-              );
-              // print("Firebase: Usuario creado y sincronizado.");
-            } catch (createError) {
-              // print("Error creando en Firebase: $createError");
-            }
-          } else {
-            // print("Firebase Error (Login): ${e.code}");
-          }
+        } catch (e) {
+          // IGNORAR error de Firebase si el backend ya nos dio el token.
+          // Esto permite que el usuario entre con su contraseña "vieja" (del backend)
+          // aunque Firebase tenga la "nueva".
+          // print("Firebase Login Falló, pero Backend OK. Continuando...");
         }
 
-        // 3. Cargar datos finales
+        // 3. LOGRADO: Guardamos token y cargamos user
+        await _storage.write(key: 'auth_token', value: token);
+
+        // Carga de datos
         final success = await _loadUserData(token);
         return success ? "OK" : "Error al cargar tus datos";
       } else {
@@ -218,14 +213,19 @@ class AppState extends ChangeNotifier {
           await googleUser.authentication;
       final String? googleToken = googleAuth.idToken;
 
+      if (googleToken == null) return "Error al obtener token de Google";
+
       // Sincronizar Firebase con Google Credential
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      await FirebaseAuth.instance.signInWithCredential(credential);
 
-      if (googleToken == null) return "Error al obtener token de Google";
+      try {
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      } on FirebaseAuthException catch (e) {
+        return _handleFirebaseError(e);
+      }
 
       final url = Uri.parse('$_baseUrl/auth/google');
       final response = await http.post(
@@ -251,6 +251,29 @@ class AppState extends ChangeNotifier {
     } catch (e) {
       // print("Error signInWithGoogle: $e");
       return "Error: $e";
+    }
+  }
+
+  // Helper para mensajes de error amigables
+  String _handleFirebaseError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'operation-not-allowed':
+        return "El método de autenticación no está habilitado en Firebase.";
+      case 'invalid-credential':
+      case 'INVALID_LOGIN_CREDENTIALS':
+        return "Correo o contraseña incorrectos.";
+      case 'user-disabled':
+        return "Tu cuenta ha sido deshabilitada.";
+      case 'user-not-found':
+        return "Usuario no encontrado.";
+      case 'wrong-password':
+        return "Contraseña incorrecta.";
+      case 'email-already-in-use':
+        return "El correo ya está registrado.";
+      case 'credential-already-in-use':
+        return "Esta cuenta ya está vinculada a otro usuario.";
+      default:
+        return "Error de autenticación: ${e.message}";
     }
   }
 
@@ -503,6 +526,60 @@ class AppState extends ChangeNotifier {
       }
     } catch (e) {
       return false;
+    }
+  }
+
+  // --- ACTUALIZAR PASSWORD EN BACKEND ---
+  Future<String> updateBackendPassword(String newPassword) async {
+    final token = await _storage.read(key: 'auth_token');
+    if (token == null) return "No hay token de sesión";
+
+    // 1. Intentamos Endpoint Específico (PUT)
+    try {
+      final response = await http.put(
+        Uri.parse('$_baseUrl/users/me/password'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'password': newPassword}),
+      );
+      if (response.statusCode == 200) return "OK";
+    } catch (e) {
+      // Continue
+    }
+
+    // 2. Intentamos Endpoint Genérico (PUT /users/me)
+    try {
+      final response = await http.put(
+        Uri.parse('$_baseUrl/users/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'password': newPassword}),
+      );
+      if (response.statusCode == 200) return "OK";
+    } catch (e) {
+      // Continue
+    }
+
+    // 3. Intentamos Endpoint PATCH (PATCH /users/me)
+    try {
+      final response = await http.patch(
+        Uri.parse('$_baseUrl/users/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'password': newPassword}),
+      );
+      if (response.statusCode == 200) return "OK";
+
+      // Si llegamos hasta aquí, devolvemos el error del último intento para debug
+      return "Fallo Server (${response.statusCode}): ${response.body}";
+    } catch (e) {
+      return "Error de conexión: $e";
     }
   }
 }

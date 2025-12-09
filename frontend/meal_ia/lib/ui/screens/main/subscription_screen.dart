@@ -11,7 +11,7 @@ class SubscriptionScreen extends StatefulWidget {
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  bool _isAnnual = false; 
+  bool _isAnnual = false;
 
   // Colores locales
   final Color activeColor = AppColors.buttonDark;
@@ -20,12 +20,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   final List<Map<String, dynamic>> _slides = [
     {
       "title": "Libertad en tu cocina",
-      "desc": "Genera menús ilimitados adaptados a lo que tienes en tu refrigerador.",
+      "desc":
+          "Genera menús ilimitados adaptados a lo que tienes en tu refrigerador.",
       "icon": Icons.kitchen_rounded,
     },
     {
       "title": "Nutrición Inteligente",
-      "desc": "Seguimiento automático de macros y calorías para cumplir tus metas.",
+      "desc":
+          "Seguimiento automático de macros y calorías para cumplir tus metas.",
       "icon": Icons.pie_chart_rounded,
     },
     {
@@ -40,19 +42,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     // Variables de precio
     final String price = _isAnnual ? "\$25.000" : "\$2.500";
     final String period = _isAnnual ? "/ año" : "/ mes";
-    final String savings = _isAnnual ? "¡Ahorras un 20%!" : "Puedes cancelar tu suscripcion cuando quieras";
+    final String savings = _isAnnual
+        ? "¡Ahorras un 20%!"
+        : "Puedes cancelar tu suscripcion cuando quieras";
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        top: false, 
+        top: false,
         child: Column(
           children: [
             // --- 1. SECCIÓN SUPERIOR (CARRUSEL) ---
             Expanded(
               child: Stack(
                 children: [
-                   // Fondo decorativo
+                  // Fondo decorativo
                   Positioned(
                     top: -80,
                     right: -80,
@@ -65,19 +69,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       ),
                     ),
                   ),
-                  
+
                   // Contenido del Carrusel
                   Column(
                     children: [
                       Expanded(
                         child: PageView.builder(
                           controller: _pageController,
-                          onPageChanged: (index) => setState(() => _currentPage = index),
+                          onPageChanged: (index) =>
+                              setState(() => _currentPage = index),
                           itemCount: _slides.length,
-                          itemBuilder: (context, index) => _buildSlide(_slides[index]),
+                          itemBuilder: (context, index) =>
+                              _buildSlide(_slides[index]),
                         ),
                       ),
-                      
+
                       // INDICADORES (Puntitos)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 30.0),
@@ -91,8 +97,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               height: 6,
                               width: _currentPage == index ? 24 : 6,
                               decoration: BoxDecoration(
-                                color: _currentPage == index 
-                                    ? activeColor 
+                                color: _currentPage == index
+                                    ? activeColor
                                     : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(3),
                               ),
@@ -112,7 +118,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               padding: const EdgeInsets.fromLTRB(30, 40, 30, 40),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.08),
@@ -124,7 +132,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  
                   // Toggle Mensual / Anual
                   _buildPricingToggle(),
 
@@ -166,7 +173,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           savings,
                           style: TextStyle(
                             fontSize: 14,
-                            color: _isAnnual ? Colors.green[600] : Colors.grey[400],
+                            color: _isAnnual
+                                ? Colors.green[600]
+                                : Colors.grey[400],
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -183,7 +192,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Procesando suscripción...")),
+                          const SnackBar(
+                            content: Text("Procesando suscripción..."),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -204,25 +215,27 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 15),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/profile');
+                      Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: Colors.grey[500], // Color gris sutil al presionar
+                      foregroundColor:
+                          Colors.grey[500], // Color gris sutil al presionar
                     ),
                     child: const Text(
                       "Seguir con el plan actual",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey, // Texto gris para indicar secundario// Opcional: subrayado
+                        color: Colors
+                            .grey, // Texto gris para indicar secundario// Opcional: subrayado
                         decorationColor: Colors.grey,
-                      )
-                    )
-                  )
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -263,7 +276,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           boxShadow: isSelected
-              ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                  ),
+                ]
               : [],
         ),
         child: Text(
