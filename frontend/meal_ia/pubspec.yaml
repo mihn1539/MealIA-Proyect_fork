@@ -35,6 +35,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/carrot.png
     - assets/google_logo.png
     - assets/saludo_carrot.png

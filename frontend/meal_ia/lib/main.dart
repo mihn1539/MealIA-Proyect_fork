@@ -19,8 +19,11 @@ import 'ui/screens/main/subscription_screen.dart';
 import 'ui/screens/main/settings_screen.dart';
 import 'ui/screens/main_shell.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Import dotenv
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env"); // Load environment variables
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
