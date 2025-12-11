@@ -71,10 +71,12 @@ class AppState extends ChangeNotifier {
   Future<bool> _loadUserData(String token) async {
     try {
       // 1. Cargar Perfil
-      final userResponse = await http.get(
-        Uri.parse('$_baseUrl/users/me'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final userResponse = await http
+          .get(
+            Uri.parse('$_baseUrl/users/me'),
+            headers: {'Authorization': 'Bearer $token'},
+          )
+          .timeout(const Duration(seconds: 20));
       if (userResponse.statusCode != 200) return false;
 
       final userData = jsonDecode(utf8.decode(userResponse.bodyBytes));
@@ -111,10 +113,12 @@ class AppState extends ChangeNotifier {
       }
 
       // 2. Cargar Inventario
-      final invResponse = await http.get(
-        Uri.parse('$_baseUrl/inventory'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final invResponse = await http
+          .get(
+            Uri.parse('$_baseUrl/inventory'),
+            headers: {'Authorization': 'Bearer $token'},
+          )
+          .timeout(const Duration(seconds: 20));
       if (invResponse.statusCode == 200) {
         final List<dynamic> invData = jsonDecode(
           utf8.decode(invResponse.bodyBytes),
@@ -128,7 +132,6 @@ class AppState extends ChangeNotifier {
         }
       }
 
-
       // 3. Cargar Menú Diario (Firestore)
       try {
         final user = FirebaseAuth.instance.currentUser;
@@ -137,11 +140,11 @@ class AppState extends ChangeNotifier {
               .collection('users')
               .doc(user.uid)
               .get();
-              
+
           if (doc.exists && doc.data() != null) {
             final data = doc.data()!;
             if (data.containsKey('daily_menu')) {
-               savedDailyMenu = Map<String, dynamic>.from(data['daily_menu']);
+              savedDailyMenu = Map<String, dynamic>.from(data['daily_menu']);
             }
           }
         }
@@ -162,11 +165,13 @@ class AppState extends ChangeNotifier {
     final url = Uri.parse('$_baseUrl/token');
     try {
       // 1. Login en Backend (FastAPI)
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {'username': email, 'password': password},
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: {'username': email, 'password': password},
+          )
+          .timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -191,10 +196,10 @@ class AppState extends ChangeNotifier {
               // print("Error recreando usuario en Firebase: $createError");
             }
           } else {
-             // print("Firebase Login Falló (ignorando): ${e.code} - ${e.message}");
+            // print("Firebase Login Falló (ignorando): ${e.code} - ${e.message}");
           }
         } catch (e) {
-           // print("Error genérico Firebase Login: $e");
+          // print("Error genérico Firebase Login: $e");
         }
 
         // 3. LOGRADO: Guardamos token y cargamos user
@@ -221,15 +226,17 @@ class AppState extends ChangeNotifier {
     final url = Uri.parse('$_baseUrl/register');
     try {
       // 1. Crear en Backend
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'first_name': firstName,
-          'password': password,
-        }),
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'email': email,
+              'first_name': firstName,
+              'password': password,
+            }),
+          )
+          .timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         // 2. Crear en Firebase (Intento silencioso)
@@ -278,11 +285,13 @@ class AppState extends ChangeNotifier {
       }
 
       final url = Uri.parse('$_baseUrl/auth/google');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'token': googleToken}),
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'token': googleToken}),
+          )
+          .timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -343,14 +352,16 @@ class AppState extends ChangeNotifier {
     if (token == null) return;
 
     try {
-      await http.put(
-        Uri.parse('$_baseUrl/inventory/$foodKey'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({'quantity': quantity, 'unit': unit}),
-      );
+      await http
+          .put(
+            Uri.parse('$_baseUrl/inventory/$foodKey'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({'quantity': quantity, 'unit': unit}),
+          )
+          .timeout(const Duration(seconds: 10));
     } catch (e) {
       // print("Error actualizando comida: $e");
     }
@@ -362,18 +373,20 @@ class AppState extends ChangeNotifier {
     String normalizedKey = food.trim().toLowerCase();
     if (normalizedKey.isEmpty) return;
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/inventory'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'name': normalizedKey,
-          'quantity': 1.0,
-          'unit': 'Unidades',
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/inventory'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({
+              'name': normalizedKey,
+              'quantity': 1.0,
+              'unit': 'Unidades',
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _inventory[normalizedKey] = {
@@ -391,10 +404,12 @@ class AppState extends ChangeNotifier {
     final token = await _storage.read(key: 'auth_token');
     if (token == null) return;
     try {
-      final response = await http.delete(
-        Uri.parse('$_baseUrl/inventory/remove/$foodKey'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final response = await http
+          .delete(
+            Uri.parse('$_baseUrl/inventory/remove/$foodKey'),
+            headers: {'Authorization': 'Bearer $token'},
+          )
+          .timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         _inventory.remove(foodKey);
         notifyListeners();
@@ -409,13 +424,15 @@ class AppState extends ChangeNotifier {
     if (token == null) return false;
     final url = Uri.parse('$_baseUrl/generate-menu');
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 60));
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         generatedMenu = {
@@ -657,17 +674,17 @@ class AppState extends ChangeNotifier {
     savedDailyMenu = Map.from(menu);
     notifyListeners();
 
-    // Persistir en Firestore
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .set({'daily_menu': savedDailyMenu}, SetOptions(merge: true));
-      }
-    } catch (e) {
-      // print("Error guardando menú en Firestore: $e");
+    // Persistir en Firestore (Optimistic Update: No esperamos la DB para no bloquear la UI)
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({'daily_menu': savedDailyMenu}, SetOptions(merge: true))
+          .then((_) => debugPrint("Menú guardado en Firestore"))
+          .catchError(
+            (e) => debugPrint("Error guardando menú en Firestore: $e"),
+          );
     }
   }
 
