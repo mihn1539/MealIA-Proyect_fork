@@ -41,7 +41,8 @@ flutter:
     - assets/carrot.png
     - assets/google_logo.png
     - assets/saludo_carrot.png
-    - assets/animation.gif
+    - assets/animation1.gif
+    - assets/animation1_transparent.gif
     - assets/saludo.gif
     - assets/legal/
 

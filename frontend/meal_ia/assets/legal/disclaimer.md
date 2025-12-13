@@ -1,24 +1,19 @@
-# Descargo de Responsabilidad Médico y Nutricional
+# Descargo de Responsabilidad (Disclaimer)
 
-**Importante: Lea atentamente antes de usar MealIA.**
+**Importante:** Lea esto con atención.
+
+La aplicación **MealIA** está diseñada para proporcionar sugerencias de comidas y recetas basadas en las preferencias e ingredientes del usuario, utilizando tecnologías de Inteligencia Artificial.
 
 ## 1. No es Asesoramiento Médico
 
-El contenido proporcionado por MealIA, incluyendo pero no limitado a planes de comidas, recetas, información nutricional y sugerencias dietéticas, es solo para fines informativos y educativos.
+El contenido proporcionado por MealIA, incluyendo cualquier plan de comidas, información nutricional o receta, se ofrece únicamente con fines informativos y educativos. **MealIA NO es un sustituto del asesoramiento médico, diagnóstico o tratamiento profesional.**
 
-**MealIA NO es un proveedor de atención médica ni un nutricionista certificado.**
+Nunca debe ignorar el consejo médico profesional ni retrasar la búsqueda del mismo debido a algo que haya leído en esta aplicación. Si tiene alergias alimentarias, condiciones médicas específicas (como diabetes, hipertensión, etc.) o preocupaciones sobre su dieta, consulte a su médico o a un dietista registrado antes de utilizar nuestras sugerencias.
 
-La información generada por nuestra Inteligencia Artificial no pretende sustituir el consejo, diagnóstico o tratamiento médico profesional.
+## 2. Precisión de la Información
 
-## 2. Alergias e Intolerancias
+Aunque nos esforzamos por proporcionar información precisa, **MealIA no garantiza la exactitud, integridad o utilidad de ninguna información nutricional o receta**. La inteligencia artificial puede generar resultados inesperados o inexactos. Usted es responsable de verificar los ingredientes y las instrucciones antes de preparar o consumir cualquier alimento, especialmente si tiene alergias conocidas.
 
-Aunque MealIA se esfuerza por respetar las preferencias dietéticas y las alergias indicadas por el usuario, **usted es el único responsable de verificar los ingredientes de cualquier receta antes de su consumo.**
+## 3. Uso bajo su propio riesgo
 
-La IA puede cometer errores. Siempre revise las etiquetas de los productos que compra y consulte con un profesional si tiene alergias graves.
-
-## 3. Responsabilidad del Usuario
-
-Al utilizar MealIA, usted acepta que:
-- El uso de la información proporcionada es bajo su propio riesgo.
-- **[NOMBRE DEL DESARROLLADOR O EMPRESA]** no será responsable de ningún problema de salud, reacción alérgica o daño que pueda surgir del uso de nuestras sugerencias.
-- Consultará a su médico antes de realizar cambios significativos en su dieta, especialmente si está embarazada, amamantando o tiene alguna condición médica.
+El uso de cualquier información proporcionada por MealIA es bajo su propio riesgo. MealIA no se hace responsable de ninguna reacción adversa, lesión o daño resultante del uso de las recetas o recomendaciones proporcionadas.

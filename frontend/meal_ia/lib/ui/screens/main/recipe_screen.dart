@@ -55,16 +55,22 @@ class _RecipeScreenState extends State<RecipeScreen> {
     String mealType,
     Map<String, dynamic> recipe,
   ) {
-    Provider.of<AppState>(
+    final app = Provider.of<AppState>(context, listen: false);
+
+    // 1. Get current menu for Today (or create empty)
+    final now = DateTime.now();
+    final currentMenu = app.getMenuForDate(now) ?? {};
+
+    // 2. Update specific meal
+    final updatedMenu = Map<String, dynamic>.from(currentMenu);
+    updatedMenu[mealType] = recipe;
+
+    // 3. Save back
+    app.saveMenuForDate(now, updatedMenu);
+
+    ScaffoldMessenger.of(
       context,
-      listen: false,
-    ).saveMealToDaily(mealType, recipe);
-    // Optional: Return to menu or stay?
-    // User requirement: "Save and generate". Probably stay or go back.
-    // Let's just give feedback.
-    // Optional: Return to menu or stay?
-    // User requirement: "Save and generate". Probably stay or go back.
-    // Let's just give feedback.
+    ).showSnackBar(const SnackBar(content: Text("Receta guardada para hoy")));
   }
 
   @override

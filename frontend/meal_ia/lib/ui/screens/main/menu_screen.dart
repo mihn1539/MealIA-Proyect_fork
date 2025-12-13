@@ -13,6 +13,70 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> {
   bool _isSaving = false;
 
+  // Lógica para regenerar menú con pantalla de carga (Copiado y adaptado de InventoryScreen)
+  Future<void> _handleRegenerate() async {
+    final appState = Provider.of<AppState>(context, listen: false);
+
+    // Mostrar diálogo de carga (fullscreen)
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            insetPadding: EdgeInsets.zero,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.white,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/animation1_transparent.gif',
+                    height: 430,
+                    width: 430,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.hourglass_bottom,
+                      size: 80,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Regenerando menú...",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    // Ejecutar la generación (Esto actualiza el estado en AppState)
+    await appState.generateMenuConIA();
+
+    if (!mounted) return;
+
+    // Cerrar el diálogo
+    Navigator.of(context).pop();
+
+    // Al cerrar el diálogo, el Provider notificará y la pantalla se redibujará con el nuevo menú
+  }
+
   // --- Widget para cada Tarjeta de Comida (Sin cambios) ---
   Widget _buildMealCard(
     BuildContext context, {
@@ -198,8 +262,8 @@ class _MenuScreenState extends State<MenuScreen> {
                               children: [
                                 Image.asset(
                                   'assets/carrot.png',
-                                  height: 80,
-                                  width: 80,
+                                  height: 140,
+                                  width: 140,
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.restaurant, size: 60),
@@ -317,7 +381,8 @@ class _MenuScreenState extends State<MenuScreen> {
                         // Regenerate/Edit Button (Secondary - Left)
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed:
+                                _handleRegenerate, // FIX: In-place regeneration
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.primaryText,
                               side: const BorderSide(
@@ -354,7 +419,11 @@ class _MenuScreenState extends State<MenuScreen> {
                                     setState(() => _isSaving = true);
                                     // debugPrint("Confirmar presionado");
                                     try {
-                                      await app.saveFullMenuToDaily(menu);
+                                      // FIX: Save for Today specifically
+                                      await app.saveMenuForDate(
+                                        DateTime.now(),
+                                        menu,
+                                      );
                                       if (!context.mounted) return;
 
                                       Navigator.pushNamedAndRemoveUntil(
@@ -390,7 +459,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.accentColor,
+                              backgroundColor: AppColors.buttonDark,
                               foregroundColor: Colors.white,
                               minimumSize: const Size(0, 50),
                               shape: RoundedRectangleBorder(

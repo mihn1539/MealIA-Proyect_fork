@@ -119,10 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showImageSourceActionSheet(BuildContext context) {
-    final appState = Provider.of<AppState>(context, listen: false);
-    final bool hasPhoto =
-        _imageFile != null ||
-        (appState.photoUrl != null && appState.photoUrl!.isNotEmpty);
+    final bool hasPhoto = _imageFile != null;
 
     showModalBottomSheet(
       context: context,
@@ -503,12 +500,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundImage: _imageFile != null
                   ? FileImage(_imageFile!) as ImageProvider
                   : (appState.photoUrl != null && appState.photoUrl!.isNotEmpty)
-                  ? NetworkImage(
-                      appState.photoUrl!,
-                      headers: appState.token != null
-                          ? {'Authorization': 'Bearer ${appState.token}'}
-                          : null,
-                    )
+                  ? NetworkImage(appState.photoUrl!)
                   : null,
             ),
           ),

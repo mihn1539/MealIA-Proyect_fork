@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_state.dart';
+import '../../../core/data/food_database.dart';
 import '../theme/app_colors.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -25,6 +26,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
     'paquete',
   ];
 
+  // We need to capture the autocomplete controller to clear it after selection
+  TextEditingController? _autocompleteController;
+
   @override
   void dispose() {
     _newFoodItemController.dispose();
@@ -39,6 +43,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
         listen: false,
       ).addFood(_newFoodItemController.text.trim());
       _newFoodItemController.clear();
+      // Also clear the autocomplete visual controller if it exists
+      _autocompleteController?.clear();
     }
   }
 
@@ -246,7 +252,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         return PopScope(
           canPop: false, // Bloquear el botón de atrás
           child: Dialog(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.white, // Volvemos a blanco puro
             surfaceTintColor: Colors.transparent,
             insetPadding: EdgeInsets.zero, // Ocupar toda la pantalla
             shape: const RoundedRectangleBorder(
@@ -255,14 +261,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
             child: Container(
               width: double.infinity,
               height: double.infinity,
-              color: Colors.white,
+              color: Colors.white, // Blanco puro
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/animation.gif',
-                    height: 300,
-                    width: 300,
+                    'assets/animation1_transparent.gif',
+                    height: 430,
+                    width: 430,
                     errorBuilder: (context, error, stackTrace) => const Icon(
                       Icons.hourglass_bottom,
                       size: 80,
@@ -273,7 +279,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   const Text(
                     "Generando menú con IA...",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
                       decoration: TextDecoration.none,
@@ -345,41 +351,142 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
+                      color: Colors.black.withOpacity(0.06),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                child: TextField(
-                  controller: _newFoodItemController,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                  decoration: InputDecoration(
-                    hintText: "Agrega los ingredientes que tienes en casa.",
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: AppColors.secondaryText,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          color: AppColors.buttonDark,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      onPressed: _addFoodItem,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onSubmitted: (_) => _addFoodItem(),
+                child: Autocomplete<String>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text.isEmpty) {
+                      return const Iterable<String>.empty();
+                    }
+                    return FoodDatabase.search(textEditingValue.text);
+                  },
+                  onSelected: (String selection) {
+                    _newFoodItemController.text = selection;
+                    _addFoodItem(); // Auto-add on selection
+                  },
+                  fieldViewBuilder:
+                      (
+                        BuildContext context,
+                        TextEditingController textEditingController,
+                        FocusNode focusNode,
+                        VoidCallback onFieldSubmitted,
+                      ) {
+                        // Sync the local controller with the Autocomplete controller
+                        // so we can clear it or read from it manually if needed.
+                        _autocompleteController = textEditingController;
+
+                        return TextField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                          decoration: InputDecoration(
+                            hintText:
+                                "Agrega los ingredientes que tienes en casa.",
+                            hintStyle: TextStyle(color: Colors.grey[400]),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: AppColors.secondaryText,
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.buttonDark,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              onPressed: () {
+                                // Sync text before adding
+                                _newFoodItemController.text =
+                                    textEditingController.text;
+                                _addFoodItem();
+                              },
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
+                          ),
+                          onSubmitted: (String value) {
+                            _newFoodItemController.text =
+                                value; // Force value just in case
+                            _addFoodItem();
+                            focusNode.requestFocus();
+                          },
+                        );
+                      },
+                  optionsViewBuilder:
+                      (
+                        BuildContext context,
+                        AutocompleteOnSelected<String> onSelected,
+                        Iterable<String> options,
+                      ) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            elevation: 4.0,
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white,
+                            child: Container(
+                              width:
+                                  MediaQuery.of(context).size.width -
+                                  48, // Match input width
+                              constraints: const BoxConstraints(maxHeight: 250),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: ListView.builder(
+                                padding: EdgeInsets.zero,
+                                shrinkWrap: true,
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final String option = options.elementAt(
+                                    index,
+                                  );
+                                  return InkWell(
+                                    onTap: () => onSelected(option),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0,
+                                        vertical: 12.0,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.restaurant_menu,
+                                            size: 18,
+                                            color: Colors.grey,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              option,
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                color: AppColors.textDark,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                 ),
               ),
 
@@ -569,7 +676,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         Icon(Icons.auto_awesome, color: Colors.white),
                         SizedBox(width: 10),
                         Text(
-                          "Generar Menú Saludable",
+                          "Generemos nuestro menú",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

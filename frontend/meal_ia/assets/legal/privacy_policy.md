@@ -1,39 +1,53 @@
 # Política de Privacidad
 
-**Última actualización: [FECHA ACTUAL]**
+**Última actualización: 13 de Diciembre de 2025**
 
-**[NOMBRE DEL DESARROLLADOR O EMPRESA]** ha creado la aplicación MealIA. Este SERVICIO se proporciona sin coste alguno (sujeto a [MODELO DE NEGOCIO]) y está destinado a ser utilizado tal cual.
+En **MealIA**, su privacidad es una prioridad. Esta Política de Privacidad describe cómo recopilamos, usamos y protegemos su información personal cuando utiliza nuestra aplicación móvil y servicios relacionados.
 
-Esta página se utiliza para informar a los visitantes sobre nuestras políticas con la recopilación, el uso y la divulgación de información personal si alguien decidió utilizar nuestro Servicio.
+## 1. Información que Recopilamos
 
-## 1. Recopilación y Uso de Información
+### 1.1 Información proporcionada por usted:
+*   **Datos de la cuenta:** Nombre, dirección de correo electrónico y contraseña (cifrada).
+*   **Perfil de usuario:** Preferencias dietéticas, objetivos nutricionales, alergias y foto de perfil.
+*   **Contenido:** Fotos de comidas que usted sube para análisis.
 
-Para una mejor experiencia, mientras utiliza nuestro Servicio, es posible que le solicitemos que nos proporcione cierta información de identificación personal, que incluye, entre otros:
-- Nombre y dirección de correo electrónico (para autenticación).
-- Preferencias dietéticas y alergias (para generar recetas).
-- Información de perfil opcional (foto de perfil).
+### 1.2 Información recopilada automáticamente:
+*   Datos de uso de la aplicación (frecuencia, funciones utilizadas).
+*   Información del dispositivo (modelo, versión del sistema operativo).
 
-La información que solicitamos será retenida por nosotros y utilizada como se describe en esta política de privacidad.
+## 2. Uso de la Información
 
-## 2. Datos de Terceros
+Utilizamos su información para:
+*   Proporcionar y mantener el servicio de MealIA.
+*   Personalizar las recomendaciones de recetas y planes de comidas mediante nuestros algoritmos de IA.
+*   Mejorar y optimizar la funcionalidad de la aplicación.
+*   Comunicarnos con usted sobre actualizaciones, seguridad y soporte.
 
-La aplicación utiliza servicios de terceros que pueden recopilar información utilizada para identificarlo.
-- **Google AdMob** (si aplica)
-- **Google Sign-In**
-- **Firebase Analytics**
+## 3. Compartir Información
 
-## 3. Seguridad
+No vendemos sus datos personales. Solo compartimos información en las siguientes circunstancias:
+*   **Proveedores de Servicios:** Con terceros que nos ayudan a operar el servicio (ej. alojamiento en la nube con Google Firebase), bajo estrictos acuerdos de confidencialidad.
+*   **Requisitos Legales:** Si es requerido por ley o para proteger nuestros derechos legales.
 
-Valoramos su confianza al proporcionarnos su información personal, por lo que nos esforzamos por utilizar medios comercialmente aceptables para protegerla. Pero recuerde que ningún método de transmisión a través de Internet, o método de almacenamiento electrónico es 100% seguro y confiable.
+## 4. Almacenamiento y Seguridad
 
-## 4. Privacidad de los Niños
+Sus datos se almacenan de forma segura utilizando servicios en la nube de proveedores líderes en la industria (como Google Cloud/Firebase). Implementamos medidas de seguridad técnicas y organizativas para proteger sus datos contra acceso no autorizado, alteración o destrucción.
 
-Estos Servicios no se dirigen a nadie menor de **[EDAD MÍNIMA, EJ: 13]** años. No recopilamos a sabiendas información de identificación personal de niños menores de esta edad.
+## 5. Sus Derechos
 
-## 5. Cambios en esta Política de Privacidad
+Usted tiene derecho a:
+*   Acceder a la información personal que tenemos sobre usted.
+*   Solicitar la corrección de datos inexactos.
+*   Solicitar la eliminación de su cuenta y todos sus datos asociados. Puede realizar esto desde la sección de configuración de la aplicación o contactando a soporte.
 
-Es posible que actualicemos nuestra Política de Privacidad de vez en cuando. Se le aconseja revisar esta página periódicamente para ver si hay cambios.
+## 6. Privacidad de Menores
 
-## 6. Contáctenos
+MealIA no está dirigida a menores de 13 años. No recopilamos conscientemente información personal de niños sin el consentimiento de los padres.
 
-Si tiene alguna pregunta o sugerencia sobre nuestra Política de Privacidad, no dude en contactarnos en **[EMAIL DE CONTACTO]**.
+## 7. Cambios en esta Política
+
+Podemos actualizar esta política ocasionalmente. Le notificaremos cualquier cambio material publicando la nueva política en esta página y actualizando la fecha de "Última actualización".
+
+## 8. Contacto
+
+Si tiene preguntas sobre esta política, contáctenos en: soporte@mealia.app (o el correo de contacto correspondiente).

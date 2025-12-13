@@ -24,9 +24,13 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
       now.month,
       now.day,
     ); // Strip time for comparison
+
+    // FIX: Start 3 days ago
+    final startDate = _selectedDate.subtract(const Duration(days: 3));
+
     _weekDays = List.generate(
-      14,
-      (index) => _selectedDate.add(Duration(days: index)),
+      14, // Show 2 weeks total (3 past + 11 future)
+      (index) => startDate.add(Duration(days: index)),
     );
   }
 
@@ -54,10 +58,9 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
 
-    // Filter menu for selected date (mock logic currently assumes 'savedDailyMenu' is for Today)
-    // In a real app, you'd fetch the menu for _selectedDate
+    // FIX: Get menu specifically for the selected date
+    final dailyMenu = appState.getMenuForDate(_selectedDate);
     final isToday = _isSameDay(_selectedDate, DateTime.now());
-    final dailyMenu = isToday ? appState.savedDailyMenu : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB), // Very light cool grey
@@ -195,8 +198,53 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
     Map<String, dynamic>? menu,
     bool isToday,
   ) {
-    if (!isToday) {
-      // Future dates empty state
+    // 1. Data Exists -> Show Menu (Always, for any date)
+    if (menu != null && menu.isNotEmpty) {
+      return ListView(
+        physics: const BouncingScrollPhysics(),
+        children: [
+          _buildSectionHeader(
+            isToday
+                ? "Tu Menú de Hoy"
+                : "Menú del ${_getDayShortName(_selectedDate.weekday)} ${_selectedDate.day}",
+          ),
+          const SizedBox(height: 16),
+          if (menu['breakfast'] != null)
+            _buildMealCard(
+              context,
+              "Desayuno",
+              Icons.wb_sunny_outlined,
+              menu['breakfast'],
+              Colors.orangeAccent,
+            ),
+          if (menu['lunch'] != null)
+            _buildMealCard(
+              context,
+              "Almuerzo",
+              Icons.restaurant_outlined,
+              menu['lunch'],
+              Colors.redAccent,
+            ),
+          if (menu['dinner'] != null)
+            _buildMealCard(
+              context,
+              "Cena",
+              Icons.nightlight_round_outlined,
+              menu['dinner'],
+              Colors.indigoAccent,
+            ),
+
+          const SizedBox(height: 80), // Bottom padding for navbar
+        ],
+      );
+    }
+
+    // 2. No Data -> Clean Empty States
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Future Date -> Locked
+    if (_selectedDate.isAfter(today)) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -224,7 +272,7 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              "El plan para este día aún no está disponible\no es una función Premium.",
+              "Los menús futuros se generarán\nautomáticamente o son Premium.",
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textLight),
             ),
@@ -233,8 +281,8 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
       );
     }
 
-    if (menu == null || menu.isEmpty) {
-      // Today empty state
+    // Past Date -> Empty History
+    if (_selectedDate.isBefore(today)) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -242,72 +290,73 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.accentColor.withValues(alpha: 0.1),
+                color: Colors.grey.shade50,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.soup_kitchen_outlined,
-                size: 48,
-                color: AppColors.accentColor,
+                Icons.history_toggle_off_outlined,
+                size: 40,
+                color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             const Text(
-              "¡Hora de planificar!",
+              "Sin registro",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textDark,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             const Text(
-              "Ve a tu Inventario y genera\ntu menú para hoy.",
+              "No hay recetas guardadas\npara este día.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: AppColors.textLight,
-                height: 1.5,
-              ),
+              style: TextStyle(color: AppColors.textLight),
             ),
           ],
         ),
       );
     }
 
-    // Has Data
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      children: [
-        _buildSectionHeader("Tu Menú de Hoy"),
-        const SizedBox(height: 16),
-        if (menu['breakfast'] != null)
-          _buildMealCard(
-            context,
-            "Desayuno",
-            Icons.wb_sunny_outlined,
-            menu['breakfast'],
-            Colors.orangeAccent,
+    // Today -> Actionable Empty State
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.accentColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.soup_kitchen_outlined,
+              size: 48,
+              color: AppColors.accentColor,
+            ),
           ),
-        if (menu['lunch'] != null)
-          _buildMealCard(
-            context,
-            "Almuerzo",
-            Icons.restaurant_outlined,
-            menu['lunch'],
-            Colors.redAccent,
+          const SizedBox(height: 24),
+          const Text(
+            "¡Hora de planificar!",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textDark,
+            ),
           ),
-        if (menu['dinner'] != null)
-          _buildMealCard(
-            context,
-            "Cena",
-            Icons.nightlight_round_outlined,
-            menu['dinner'],
-            Colors.indigoAccent,
+          const SizedBox(height: 10),
+          const Text(
+            "Ve a tu Inventario y genera\ntu menú para hoy.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              color: AppColors.textLight,
+              height: 1.5,
+            ),
           ),
-
-        const SizedBox(height: 80), // Bottom padding for navbar
-      ],
+        ],
+      ),
     );
   }
 
@@ -407,16 +456,16 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
-                        children: const [
-                          Icon(
+                        children: [
+                          const Icon(
                             Icons.access_time_filled,
                             size: 10,
                             color: Colors.grey,
                           ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
-                            "20 min", // Placeholder time
-                            style: TextStyle(
+                            _calculatePrepTime(mealData),
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: Colors.grey,
@@ -499,6 +548,23 @@ class _RecipeCalendarScreenState extends State<RecipeCalendarScreen> {
         ),
       ),
     );
+  }
+
+  String _calculatePrepTime(dynamic mealData) {
+    if (mealData is Map) {
+      // 1. Check for explicit time
+      if (mealData['time'] != null) {
+        return "${mealData['time']} min";
+      }
+      // 2. Heuristic: Base 10m + 5m per step
+      final steps = mealData['steps'];
+      if (steps is List && steps.isNotEmpty) {
+        final calculated = 10 + (steps.length * 5);
+        return "$calculated min";
+      }
+    }
+    // Default fallback
+    return "20 min";
   }
 
   // --- Helpers ---
